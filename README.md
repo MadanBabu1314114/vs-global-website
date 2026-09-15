@@ -1,32 +1,29 @@
-# React + TypeScript + Vite
+# AMAR'S WORLD — amarglobal.com
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Static website deployed to GitHub Pages with custom domain `amarglobal.com`.
 
-Currently, two official plugins are available:
+## Structure
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- `index.html` — homepage (must stay at repo root)
+- `about.html`, `services.html`, `study-in-uk.html`, `application-process.html`, `documents.html`, `faqs.html`, `contact.html`, `privacy-policy.html`, `terms-conditions.html`, `disclaimer.html`
+- `css/style.css`, `js/script.js`
+- `CNAME` — contains `amarglobal.com`
+- `.nojekyll` — disables Jekyll processing
+- `404.html` — Pages fallback
 
-## React Compiler
+## Deploy
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Push to `master` triggers `.github/workflows/deploy.yml` (static upload, no build).
+GitHub repo Settings > Pages > Source must be `GitHub Actions`, custom domain `amarglobal.com`, Enforce HTTPS on.
 
-## Expanding the Oxlint configuration
+## DNS (at domain registrar)
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
+- Apex `@` A records: 185.199.108.153, 185.199.109.153, 185.199.110.153, 185.199.111.153
+- `www` CNAME: MadanBabu1314114.github.io
 
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+## Local preview
+
+```bash
+python3 -m http.server 8000
+# open http://localhost:8000
 ```
-
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
