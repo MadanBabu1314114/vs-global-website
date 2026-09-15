@@ -1,70 +1,90 @@
 document.addEventListener('DOMContentLoaded', function () {
-  // Mobile nav toggle
   var toggle = document.querySelector('.nav-toggle');
   var links = document.querySelector('.nav-links');
   if (toggle && links) {
-    toggle.addEventListener('click', function () {
-      links.classList.toggle('open');
-      var expanded = links.classList.contains('open');
-      toggle.setAttribute('aria-expanded', expanded);
+    var backdrop = document.getElementById('nav-backdrop');
+    if (!backdrop) {
+      backdrop = document.createElement('div');
+      backdrop.id = 'nav-backdrop';
+      backdrop.className = 'nav-backdrop';
+      backdrop.setAttribute('aria-hidden', 'true');
+      document.body.appendChild(backdrop);
+    }
+    function syncHeaderHeight() {
+      var h = document.querySelector('.site-header');
+      if (h) {
+        var ht = h.offsetHeight + 'px';
+        backdrop.style.top = ht;
+        if (window.innerWidth <= 960) {
+          links.style.top = ht;
+          links.style.height = 'calc(100dvh - ' + ht + ')';
+        } else {
+          links.style.top = '';
+          links.style.height = '';
+        }
+      }
+    }
+    function isOpen() { return links.classList.contains('open'); }
+    function openMenu() {
+      links.classList.add('open');
+      backdrop.classList.add('show');
+      document.body.classList.add('menu-open');
+      toggle.setAttribute('aria-expanded', 'true');
+    }
+    function closeMenu() {
+      links.classList.remove('open');
+      backdrop.classList.remove('show');
+      document.body.classList.remove('menu-open');
+      toggle.setAttribute('aria-expanded', 'false');
+    }
+    syncHeaderHeight();
+    window.addEventListener('resize', syncHeaderHeight);
+    toggle.addEventListener('click', function (e) {
+      e.stopPropagation();
+      if (isOpen()) closeMenu(); else { syncHeaderHeight(); openMenu(); }
     });
+    backdrop.addEventListener('click', closeMenu);
     links.querySelectorAll('a').forEach(function (a) {
-      a.addEventListener('click', function () { links.classList.remove('open'); });
+      a.addEventListener('click', closeMenu);
     });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && isOpen()) closeMenu();
+    });
+    var mql = window.matchMedia('(min-width: 961px)');
+    function onBreakpoint(e) { if (e.matches) closeMenu(); }
+    if (mql.addEventListener) mql.addEventListener('change', onBreakpoint);
+    else if (mql.addListener) mql.addListener(onBreakpoint);
   }
-
-  // FAQ accordion
   document.querySelectorAll('.faq-item').forEach(function (item) {
     var q = item.querySelector('.faq-q');
     var a = item.querySelector('.faq-a');
     if (!q || !a) return;
     q.addEventListener('click', function () {
-      var isOpen = item.classList.contains('open');
+      var isOpenFaq = item.classList.contains('open');
       document.querySelectorAll('.faq-item.open').forEach(function (openItem) {
         if (openItem !== item) {
           openItem.classList.remove('open');
-          openItem.querySelector('.faq-a').style.maxHeight = null;
+          var el = openItem.querySelector('.faq-a');
+          if (el) el.style.maxHeight = null;
         }
       });
-      item.classList.toggle('open', !isOpen);
-      a.style.maxHeight = !isOpen ? a.scrollHeight + 'px' : null;
+      item.classList.toggle('open', !isOpenFaq);
+      a.style.maxHeight = !isOpenFaq ? a.scrollHeight + 'px' : null;
     });
   });
-
-  // Enquiry form
-  // NOTE: This form is not yet connected to a live email/form backend.
-  // It currently validates and shows a success message only.
-  // To go live, replace the block below with a fetch()/AJAX call to a
-  // form service (e.g. Formspree, EmailJS, or a custom API endpoint that
-  // emails info@amarsworld.com), then show #form-success on a successful
-  // response instead of unconditionally.
   var form = document.getElementById('enquiry-form');
   if (form) {
     form.addEventListener('submit', function (e) {
       e.preventDefault();
-
-      // --- Backend integration point ---
-      // Example (once a service is connected):
-      // fetch('https://your-form-endpoint.example.com/submit', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify(Object.fromEntries(new FormData(form)))
-      // }).then(function (res) {
-      //   if (res.ok) { showSuccess(); form.reset(); }
-      // });
-
       showSuccess();
       form.reset();
     });
   }
-
   function showSuccess() {
     var success = document.getElementById('form-success');
     if (form) form.style.display = 'none';
     if (success) success.classList.add('show');
   }
-
-  // Active nav link highlight
   var current = window.location.pathname.split('/').pop() || 'index.html';
   document.querySelectorAll('.nav-links a').forEach(function (a) {
     var href = a.getAttribute('href');
